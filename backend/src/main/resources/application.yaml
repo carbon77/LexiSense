@@ -5,3 +5,4 @@ spring:
 app:
   dictionary:
     url: https://api.dictionaryapi.dev/api/v2/entries/en/
+    timeout: 5000

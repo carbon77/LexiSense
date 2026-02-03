@@ -2,6 +2,7 @@ package com.lexisense.backend.controller
 
 import com.lexisense.backend.dto.WordDefinition
 import com.lexisense.backend.service.SentenceAnalyzerService
+import org.springframework.web.bind.annotation.CrossOrigin
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
@@ -10,6 +11,7 @@ import reactor.core.publisher.Mono
 
 @RestController
 @RequestMapping("/analyze")
+@CrossOrigin("*")
 class AnalyzerController(
     private val sentenceAnalyzer: SentenceAnalyzerService,
 ) {

@@ -24,11 +24,13 @@ class SentenceAnalyzerService(
             )
     }
 
-    private fun extractWords(sentence: String): List<String> {
-        return sentence
+    private fun extractWords(sentence: String): Set<String> {
+        val words = sentence
             .lowercase()
             .replace(Regex("[^a-zA-Z0-9\\s]"), "")
             .split("\\s+".toRegex())
             .filter { it.isNotEmpty() }
+            .toSet()
+        return words
     }
 }
