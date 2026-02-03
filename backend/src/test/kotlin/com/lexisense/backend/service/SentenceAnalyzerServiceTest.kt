@@ -1,13 +1,12 @@
 package com.lexisense.backend.service
 
 import com.lexisense.backend.client.DictionaryClient
+import com.lexisense.backend.dto.WordDefinition
+import io.mockk.every
+import io.mockk.mockk
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
-import org.springframework.http.HttpStatus
-import org.springframework.web.reactive.function.client.ClientResponse
-import org.springframework.web.reactive.function.client.ExchangeFunction
-import org.springframework.web.reactive.function.client.WebClient
 import reactor.core.publisher.Mono
 import reactor.test.StepVerifier
 
@@ -15,22 +14,11 @@ class SentenceAnalyzerServiceTest {
 
     @Test
     fun `analyzeSentence returns definitions and empty lists for missing words`() {
-        val exchangeFunction = ExchangeFunction { request ->
-            val word = request.url().path.removePrefix("/")
-            val response = if (word == "missing") {
-                ClientResponse.create(HttpStatus.NOT_FOUND)
-                    .header("Content-Type", "text/plain")
-                    .body("Word \"$word\" not found")
-                    .build()
-            } else {
-                ClientResponse.create(HttpStatus.OK)
-                    .header("Content-Type", "application/json")
-                    .body(definitionJson(word))
-                    .build()
-            }
-            Mono.just(response)
-        }
-        val dictionaryClient = DictionaryClient(buildWebClient(exchangeFunction))
+        val dictionaryClient = mockk<DictionaryClient>()
+        every { dictionaryClient.findDefinition("hello") } returns Mono.just(listOf(definition("hello")))
+        every { dictionaryClient.findDefinition("world") } returns Mono.just(listOf(definition("world")))
+        every { dictionaryClient.findDefinition("missing") } returns Mono.error(RuntimeException("not found"))
+
         val service = SentenceAnalyzerService(dictionaryClient)
 
         StepVerifier.create(service.analyzeSentence("Hello, world! Missing?"))
@@ -46,25 +34,14 @@ class SentenceAnalyzerServiceTest {
             .verifyComplete()
     }
 
-    private fun buildWebClient(exchangeFunction: ExchangeFunction): WebClient {
-        return WebClient.builder()
-            .baseUrl("http://localhost")
-            .exchangeFunction(exchangeFunction)
-            .build()
-    }
-
-    private fun definitionJson(word: String): String {
-        return """
-            [
-              {
-                \"word\": \"${word.lowercase()}\",
-                \"phonetic\": null,
-                \"phonetics\": [],
-                \"meanings\": [],
-                \"license\": null,
-                \"sourceUrls\": []
-              }
-            ]
-        """.trimIndent()
+    private fun definition(word: String): WordDefinition {
+        return WordDefinition(
+            word = word,
+            phonetic = null,
+            phonetics = emptyList(),
+            meanings = emptyList(),
+            license = null,
+            sourceUrls = emptyList()
+        )
     }
 }

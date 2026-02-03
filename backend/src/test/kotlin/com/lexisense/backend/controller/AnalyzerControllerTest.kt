@@ -47,12 +47,12 @@ class AnalyzerControllerTest {
         return """
             [
               {
-                \"word\": \"${word.lowercase()}\",
-                \"phonetic\": null,
-                \"phonetics\": [],
-                \"meanings\": [],
-                \"license\": null,
-                \"sourceUrls\": []
+                "word": "${word.lowercase()}",
+                "phonetic": null,
+                "phonetics": [],
+                "meanings": [],
+                "license": null,
+                "sourceUrls": []
               }
             ]
         """.trimIndent()
